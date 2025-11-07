@@ -34,4 +34,7 @@ provider "azurerm" {
 
   # Use OIDC authentication in GitHub Actions, Azure CLI locally
   use_oidc = true
+  
+  # Use Azure AD authentication for storage operations (required when shared key access is disabled)
+  storage_use_azuread = true
 }
