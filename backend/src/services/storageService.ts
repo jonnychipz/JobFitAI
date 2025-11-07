@@ -20,6 +20,13 @@ export class StorageService {
     }
 
     try {
+      console.log("Storage initialization:", {
+        isDevelopment: config.isDevelopment,
+        hasAccountName: !!config.azure.storage.accountName,
+        accountName: config.azure.storage.accountName || "(empty)",
+        hasConnectionString: !!config.azure.storage.connectionString,
+      });
+
       let blobServiceClient: BlobServiceClient;
 
       // In production (Azure Functions), use managed identity
