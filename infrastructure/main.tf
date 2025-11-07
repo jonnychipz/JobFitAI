@@ -18,7 +18,7 @@ resource "azurerm_storage_account" "main" {
 
   https_traffic_only_enabled      = true
   allow_nested_items_to_be_public = false
-  shared_key_access_enabled       = true # Required for Function App
+  shared_access_key_enabled       = true # Required for Function App
 
   network_rules {
     default_action = "Allow"
