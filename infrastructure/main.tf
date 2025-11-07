@@ -50,17 +50,9 @@ resource "azurerm_storage_container" "cvfiles" {
 }
 
 # File Share for Function App
-resource "azurerm_storage_share" "function_content" {
-  name                 = "function-content"
-  storage_account_name = azurerm_storage_account.main.name
-  quota                = 5120
-  
-  # This resource is managed by Terraform but accessed via Azure AD by the Function App
-  # Azure Policy prevents shared key access, so we rely on RBAC permissions
-  depends_on = [
-    azurerm_storage_account.main
-  ]
-}
+# Storage share not needed when using managed identity
+# Azure Functions will automatically create and manage the content share
+# when storage_uses_managed_identity = true
 
 # Log Analytics Workspace
 resource "azurerm_log_analytics_workspace" "main" {
@@ -191,7 +183,7 @@ resource "azurerm_linux_function_app" "main" {
     "FUNCTIONS_EXTENSION_VERSION"           = "~4"
     "FUNCTIONS_WORKER_RUNTIME"              = "node"
     "WEBSITE_NODE_DEFAULT_VERSION"          = "~20"
-    "WEBSITE_CONTENTSHARE"                  = azurerm_storage_share.function_content.name
+    # WEBSITE_CONTENTSHARE not needed - Azure Functions auto-manages with managed identity
     "APPLICATIONINSIGHTS_CONNECTION_STRING" = azurerm_application_insights.main.connection_string
     "AZURE_KEYVAULT_URL"                    = azurerm_key_vault.main.vault_uri
     # Using managed identity for storage access instead of connection string
