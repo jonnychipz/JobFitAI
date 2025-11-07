@@ -53,7 +53,7 @@ jobs:
         id: get-swa
         run: |
           # Static Web App details from infrastructure
-          SWA_NAME="stapp-jl-jobfitai-dev-weu"
+          SWA_NAME="swa-jl-jobfitai-dev-weu"
           # Retrieve API key from Azure
           SWA_API_KEY=$(az staticwebapp secrets list \
             --name $SWA_NAME \
