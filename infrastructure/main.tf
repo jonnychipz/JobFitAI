@@ -54,6 +54,12 @@ resource "azurerm_storage_share" "function_content" {
   name                 = "function-content"
   storage_account_name = azurerm_storage_account.main.name
   quota                = 5120
+  
+  # This resource is managed by Terraform but accessed via Azure AD by the Function App
+  # Azure Policy prevents shared key access, so we rely on RBAC permissions
+  depends_on = [
+    azurerm_storage_account.main
+  ]
 }
 
 # Log Analytics Workspace
@@ -135,6 +141,12 @@ resource "azurerm_key_vault_secret" "openai_api_key" {
   depends_on = [
     azurerm_role_assignment.keyvault_admin
   ]
+}
+
+# Import existing secret if it already exists
+import {
+  to = azurerm_key_vault_secret.openai_api_key
+  id = "https://kv-jl-jobfitai-dev-weu.vault.azure.net/secrets/AzureOpenAIApiKey/c8d2e0533a72402287508c55eeba3953"
 }
 
 # App Service Plan for Functions (Consumption)
