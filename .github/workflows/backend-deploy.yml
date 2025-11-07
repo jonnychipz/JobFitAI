@@ -37,8 +37,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-          cache-dependency-path: backend/package-lock.json
 
       - name: Azure Login with OIDC
         uses: azure/login@v2
@@ -59,7 +57,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./backend
-        run: npm ci
+        run: npm install --production=false
 
       - name: Build backend
         working-directory: ./backend
