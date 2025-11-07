@@ -76,7 +76,7 @@ app.http("uploadCVText", {
 app.http("getCV", {
   methods: ["GET", "OPTIONS"],
   authLevel: "function",
-  route: "cv/{cvId}",
+  route: "cv/{cvId}/details",
   handler: async (request: HttpRequest, context: InvocationContext) => {
     if (request.method === "OPTIONS") {
       return addCorsHeaders({ status: 200 });
