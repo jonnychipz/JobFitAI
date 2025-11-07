@@ -28,7 +28,6 @@ jobs:
   terraform:
     name: Deploy Infrastructure
     runs-on: ubuntu-latest
-    environment: production
 
     defaults:
       run:

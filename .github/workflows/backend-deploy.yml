@@ -28,7 +28,6 @@ jobs:
   build-and-deploy:
     name: Build and Deploy Backend
     runs-on: ubuntu-latest
-    environment: production
 
     steps:
       - name: Checkout code
