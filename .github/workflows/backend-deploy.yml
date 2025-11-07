@@ -45,12 +45,11 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Get Function App Name from Terraform
+      - name: Set Function App Name
         id: get-function-app
         run: |
-          cd infrastructure
-          terraform init
-          FUNCTION_APP_NAME=$(terraform output -raw function_app_name)
+          # Function App name from infrastructure
+          FUNCTION_APP_NAME="func-jl-jobfitai-dev-weu"
           echo "function_app_name=$FUNCTION_APP_NAME" >> $GITHUB_OUTPUT
           echo "Resource Group: rg-jl-jobfitai-dev-weu"
           echo "Function App: $FUNCTION_APP_NAME"
