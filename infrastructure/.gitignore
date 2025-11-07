@@ -29,6 +29,3 @@ terraform.rc
 
 # Plan files
 *.tfplan
-
-# Backend configuration (if contains sensitive data)
-backend.tf

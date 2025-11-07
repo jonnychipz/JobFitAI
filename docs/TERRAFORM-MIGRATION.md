@@ -12,11 +12,13 @@ Successfully migrated the JobFitAI infrastructure from Azure Bicep to Terraform 
 ### Infrastructure as Code
 
 **Removed:**
+
 - ❌ All Bicep files (`*.bicep`, `*.bicepparam`, `*.json`)
 - ❌ Bicep modules directory
 - ❌ Monolithic deployment workflow
 
 **Added:**
+
 - ✅ Terraform configuration files:
   - `providers.tf` - Provider and version configuration
   - `variables.tf` - Input variables and local values
@@ -30,6 +32,7 @@ Successfully migrated the JobFitAI infrastructure from Azure Bicep to Terraform 
 ### GitHub Actions Workflows
 
 **Removed:**
+
 - ❌ `.github/workflows/deploy.yml` (monolithic workflow)
 
 **Added Three Separate Workflows:**
@@ -38,12 +41,10 @@ Successfully migrated the JobFitAI infrastructure from Azure Bicep to Terraform 
    - Triggers on: `infrastructure/**` changes
    - Deploys: All Azure resources via Terraform
    - Actions: Format check, init, validate, plan (PR), apply (main)
-   
 2. **`backend-deploy.yml`**
    - Triggers on: `backend/**` changes
    - Deploys: Function App code
    - Actions: Build, test, deploy Node.js backend
-   
 3. **`frontend-deploy.yml`**
    - Triggers on: `frontend/**` changes
    - Deploys: Static Web App
@@ -52,17 +53,20 @@ Successfully migrated the JobFitAI infrastructure from Azure Bicep to Terraform 
 ## Benefits
 
 ### Efficiency
+
 - ✅ **Faster Deployments**: Only changed components deploy
 - ✅ **Parallel Execution**: Multiple workflows can run simultaneously
 - ✅ **Reduced Build Time**: Smaller, focused deployments
 
 ### Developer Experience
+
 - ✅ **Terraform State Management**: Better state tracking and locking
 - ✅ **Better IDE Support**: Terraform has extensive tooling
 - ✅ **Industry Standard**: Terraform is multi-cloud and widely adopted
 - ✅ **Clear Separation**: Infrastructure vs application deployments
 
 ### Workflow Improvements
+
 - ✅ **Path-based Triggers**: Smart deployment based on file changes
 - ✅ **Independent Pipelines**: Infrastructure, backend, and frontend deploy independently
 - ✅ **Terraform Plan on PRs**: Preview changes before merging
@@ -72,21 +76,21 @@ Successfully migrated the JobFitAI infrastructure from Azure Bicep to Terraform 
 
 All Azure resources from Bicep are preserved in Terraform:
 
-| Resource | Bicep | Terraform | Status |
-|----------|-------|-----------|--------|
-| Resource Group | ✅ | ✅ | Migrated |
-| Storage Account | ✅ | ✅ | Migrated |
-| File Share | ✅ | ✅ | Migrated |
-| Blob Container | ✅ | ✅ | Migrated |
-| Key Vault | ✅ | ✅ | Migrated |
-| Azure OpenAI | ✅ | ✅ | Migrated |
-| OpenAI Deployment | ✅ | ✅ | Migrated |
-| Function App | ✅ | ✅ | Migrated |
-| App Service Plan | ✅ | ✅ | Migrated |
-| Static Web App | ✅ | ✅ | Migrated |
-| Application Insights | ✅ | ✅ | Migrated |
-| Log Analytics | ✅ | ✅ | Migrated |
-| RBAC Assignments | ✅ | ✅ | Migrated |
+| Resource             | Bicep | Terraform | Status   |
+| -------------------- | ----- | --------- | -------- |
+| Resource Group       | ✅    | ✅        | Migrated |
+| Storage Account      | ✅    | ✅        | Migrated |
+| File Share           | ✅    | ✅        | Migrated |
+| Blob Container       | ✅    | ✅        | Migrated |
+| Key Vault            | ✅    | ✅        | Migrated |
+| Azure OpenAI         | ✅    | ✅        | Migrated |
+| OpenAI Deployment    | ✅    | ✅        | Migrated |
+| Function App         | ✅    | ✅        | Migrated |
+| App Service Plan     | ✅    | ✅        | Migrated |
+| Static Web App       | ✅    | ✅        | Migrated |
+| Application Insights | ✅    | ✅        | Migrated |
+| Log Analytics        | ✅    | ✅        | Migrated |
+| RBAC Assignments     | ✅    | ✅        | Migrated |
 
 ## Configuration
 
@@ -120,6 +124,7 @@ Azure OpenAI:      oai-<org>-<workload>-<env>-<region>
 ## Deployment Workflow
 
 ### Before (Bicep - Monolithic)
+
 ```
 Push to main
   ↓
@@ -131,6 +136,7 @@ Deploy infrastructure + backend + frontend
 ```
 
 ### After (Terraform - Modular)
+
 ```
 Push to main
   ↓
@@ -171,11 +177,13 @@ Terraform configuration validated successfully:
 ### Required Before Deployment
 
 1. **Destroy Existing Bicep Resources** (if any):
+
    ```bash
    az group delete --name rg-jl-jobfitai-dev-weu --yes
    ```
 
 2. **Deploy with Terraform**:
+
    ```bash
    cd infrastructure
    az login

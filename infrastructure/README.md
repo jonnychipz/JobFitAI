@@ -37,6 +37,20 @@ This directory contains Terraform configuration for deploying the JobFitAI Azure
 
 ## Configuration
 
+### Remote State Backend
+
+**Terraform state is stored in Azure Storage for team collaboration and state locking.**
+
+Backend configuration:
+
+- **Resource Group**: `rg-terraform-state`
+- **Storage Account**: `sttfstatejobfitai`
+- **Container**: `tfstate`
+- **State File**: `jobfitai.tfstate`
+- **Authentication**: Azure AD (no storage keys required)
+
+The remote backend is already configured in `backend.tf` and will be used automatically.
+
 ### Variables
 
 Edit `terraform.tfvars` to customize:
@@ -46,35 +60,17 @@ Edit `terraform.tfvars` to customize:
 - `workload_name`: Application name
 - `org_name`: Organization identifier
 
-### Remote State (Optional)
+### GitHub Actions Setup
 
-For team collaboration, configure remote state in Azure Storage:
+**Grant Service Principal access to the remote backend:**
 
-1. Create a storage account for Terraform state:
+After setting up your GitHub secrets (AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID), run:
 
-   ```bash
-   az group create --name rg-terraform-state --location westeurope
-   az storage account create --name sttfstate<unique> --resource-group rg-terraform-state --sku Standard_LRS
-   az storage container create --name tfstate --account-name sttfstate<unique>
-   ```
+```bash
+./grant-backend-access.sh <AZURE_CLIENT_ID>
+```
 
-2. Create `backend.tf`:
-
-   ```hcl
-   terraform {
-     backend "azurerm" {
-       resource_group_name  = "rg-terraform-state"
-       storage_account_name = "sttfstate<unique>"
-       container_name       = "tfstate"
-       key                  = "jobfitai.tfstate"
-     }
-   }
-   ```
-
-3. Re-initialize:
-   ```bash
-   terraform init -migrate-state
-   ```
+This grants your GitHub Actions service principal permission to read/write Terraform state.
 
 ## Resources Deployed
 
