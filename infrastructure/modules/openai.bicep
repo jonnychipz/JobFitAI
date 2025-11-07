@@ -17,8 +17,8 @@ param openAIAccountName string
 @description('The deployment model name')
 param deploymentModelName string = 'gpt-4'
 
-@description('The deployment model version')
-param modelVersion string = '0613'
+@description('The deployment model version - using turbo-2024-04-09 (latest stable)')
+param modelVersion string = 'turbo-2024-04-09'
 
 @description('The deployment capacity')
 param deploymentCapacity int = 10

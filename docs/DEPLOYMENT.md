@@ -25,7 +25,7 @@ JobFitAI uses a serverless architecture on Azure with automated deployment via G
                 ↓
 ┌─────────────────────────────────────────────────┐
 │           Azure Resources                        │
-│  Resource Group: rg-jl-jobfitai-dev-uks         │
+│  Resource Group: rg-jl-jobfitai-dev-weu         │
 ├─────────────────────────────────────────────────┤
 │                                                  │
 │  ┌──────────────────┐    ┌──────────────────┐  │
@@ -95,7 +95,7 @@ az account set --subscription "YOUR_SUBSCRIPTION_ID"
 # Deploy Bicep templates
 az deployment sub create \
   --name "jobfitai-$(date +%Y%m%d-%H%M%S)" \
-  --location uksouth \
+  --location westeurope \
   --template-file infrastructure/main.bicep \
   --parameters infrastructure/main.bicepparam
 ```
@@ -128,7 +128,7 @@ npx @azure/static-web-apps-cli deploy \
 
 | Resource | Type | Purpose |
 |----------|------|---------|
-| Resource Group | `rg-jl-jobfitai-dev-uks` | Container for all resources |
+| Resource Group | `rg-jl-jobfitai-dev-weu` | Container for all resources |
 | Function App | `func-jl-jobfitai-dev-uks-*` | Backend API (Node.js 20) |
 | Static Web App | `swa-jl-jobfitai-dev-uks-*` | Frontend hosting (React) |
 | Storage Account | `stjljobfitaidevuks*` | CV file storage |
@@ -202,7 +202,7 @@ For automated deployment, configure these secrets in GitHub:
 1. **Check Azure Resources:**
    ```bash
    az resource list \
-     --resource-group rg-jl-jobfitai-dev-uks \
+     --resource-group rg-jl-jobfitai-dev-weu \
      --output table
    ```
 
@@ -277,7 +277,7 @@ To delete all Azure resources:
 
 ```bash
 az group delete \
-  --name rg-jl-jobfitai-dev-uks \
+  --name rg-jl-jobfitai-dev-weu \
   --yes --no-wait
 ```
 

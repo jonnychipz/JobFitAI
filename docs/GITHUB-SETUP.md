@@ -24,7 +24,7 @@ The deployment workflow (`.github/workflows/deploy.yml`) automates:
 
 ```bash
 SUBSCRIPTION_ID=$(az account show --query id -o tsv)
-RESOURCE_GROUP="rg-jl-jobfitai-dev-uks"
+RESOURCE_GROUP="rg-jl-jobfitai-dev-weu"
 APP_NAME="github-jobfitai-deployer"
 REPO_OWNER="your-github-username"  # Replace with your GitHub username/org
 REPO_NAME="JobFitAI"               # Replace with your repo name
@@ -119,7 +119,7 @@ Test Bicep deployment locally:
 ```bash
 az deployment sub create \
   --name "jobfitai-test-$(date +%Y%m%d-%H%M%S)" \
-  --location uksouth \
+  --location westeurope \
   --template-file ./infrastructure/main.bicep \
   --parameters ./infrastructure/main.bicepparam \
   --what-if
@@ -163,7 +163,7 @@ After successful deployment, the workflow provides:
 Deployed Resources:
 - Frontend: https://<generated-url>.azurestaticapps.net
 - Backend API: https://func-jl-jobfitai-dev-uks-<random>.azurewebsites.net
-- Resource Group: rg-jl-jobfitai-dev-uks
+- Resource Group: rg-jl-jobfitai-dev-weu
 ```
 
 ## Troubleshooting

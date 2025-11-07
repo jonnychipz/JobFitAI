@@ -6,13 +6,13 @@
     "_generator": {
       "name": "bicep",
       "version": "0.38.33.27573",
-      "templateHash": "1818896910900712051"
+      "templateHash": "9566567698654573486"
     }
   },
   "parameters": {
     "location": {
       "type": "string",
-      "defaultValue": "uksouth",
+      "defaultValue": "westeurope",
       "metadata": {
         "description": "The Azure region for all resources"
       }
@@ -46,7 +46,7 @@
   },
   "variables": {
     "namingPrefix": "[format('{0}-{1}-{2}', parameters('orgName'), parameters('workloadName'), parameters('environment'))]",
-    "locationShort": "uks"
+    "locationShort": "weu"
   },
   "resources": {
     "rg": {
@@ -91,7 +91,7 @@
             "value": "gpt-4"
           },
           "modelVersion": {
-            "value": "0613"
+            "value": "turbo-2024-04-09"
           },
           "deploymentCapacity": {
             "value": 10
@@ -104,7 +104,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.38.33.27573",
-              "templateHash": "13207662967749717189"
+              "templateHash": "10649854794223081437"
             }
           },
           "parameters": {
@@ -147,9 +147,9 @@
             },
             "modelVersion": {
               "type": "string",
-              "defaultValue": "0613",
+              "defaultValue": "turbo-2024-04-09",
               "metadata": {
-                "description": "The deployment model version"
+                "description": "The deployment model version - using turbo-2024-04-09 (latest stable)"
               }
             },
             "deploymentCapacity": {
@@ -975,7 +975,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.38.33.27573",
-              "templateHash": "8550010480859936240"
+              "templateHash": "3690230873486783546"
             }
           },
           "parameters": {
@@ -1010,12 +1010,28 @@
               }
             }
           },
+          "variables": {
+            "swaRegionMap": {
+              "uksouth": "westeurope",
+              "ukwest": "westeurope",
+              "northeurope": "westeurope",
+              "westeurope": "westeurope",
+              "eastus": "eastus2",
+              "eastus2": "eastus2",
+              "westus": "westus2",
+              "westus2": "westus2",
+              "centralus": "centralus",
+              "southeastasia": "eastasia",
+              "eastasia": "eastasia"
+            },
+            "swaLocation": "[coalesce(tryGet(variables('swaRegionMap'), parameters('location')), 'westeurope')]"
+          },
           "resources": [
             {
               "type": "Microsoft.Web/staticSites",
               "apiVersion": "2023-01-01",
               "name": "[parameters('staticWebAppName')]",
-              "location": "[parameters('location')]",
+              "location": "[variables('swaLocation')]",
               "tags": {
                 "Environment": "[parameters('environment')]",
                 "Workload": "[parameters('workloadName')]",

@@ -10,8 +10,8 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_RESOURCE_GROUP: rg-jl-jobfitai-dev-uks
-  AZURE_LOCATION: uksouth
+  AZURE_RESOURCE_GROUP: rg-jl-jobfitai-dev-weu
+  AZURE_LOCATION: westeurope
   AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
 permissions:

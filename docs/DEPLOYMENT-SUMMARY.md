@@ -85,7 +85,7 @@ Your app includes:
                 ↓
 ┌─────────────────────────────────────────────────┐
 │           Azure Resources                        │
-│  Resource Group: rg-jl-jobfitai-dev-uks         │
+│  Resource Group: rg-jl-jobfitai-dev-weu         │
 ├─────────────────────────────────────────────────┤
 │                                                  │
 │  ┌──────────────────┐    ┌──────────────────┐  │
@@ -116,7 +116,7 @@ Following Azure best practices:
 
 | Resource Type   | Naming Pattern                         | Example                           |
 | --------------- | -------------------------------------- | --------------------------------- |
-| Resource Group  | `rg-<org>-<workload>-<env>-<region>`   | `rg-jl-jobfitai-dev-uks`          |
+| Resource Group  | `rg-<org>-<workload>-<env>-<region>`   | `rg-jl-jobfitai-dev-weu`          |
 | Function App    | `func-<org>-<workload>-<env>-<region>` | `func-jl-jobfitai-dev-uks-<hash>` |
 | Static Web App  | `swa-<org>-<workload>-<env>-<region>`  | `swa-jl-jobfitai-dev-uks-<hash>`  |
 | Key Vault       | `kv-<org>-<workload>-<env>-<region>`   | `kv-jl-jobfitai-dev-uks`          |
@@ -292,7 +292,7 @@ az provider register --namespace Microsoft.Insights
 
 **3. "OpenAI deployment failed"**
 
-- Check if Azure OpenAI is available in UK South region
+- Check if Azure OpenAI is available in West Europe region
 - Verify subscription has Azure OpenAI quota
 - Apply for access if needed: https://aka.ms/oai/access
 

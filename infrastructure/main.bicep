@@ -2,7 +2,7 @@
 targetScope = 'subscription'
 
 @description('The Azure region for all resources')
-param location string = 'uksouth'
+param location string = 'westeurope'
 
 @description('The environment name (dev, staging, prod)')
 @allowed(['dev', 'staging', 'prod'])
@@ -16,7 +16,7 @@ param orgName string = 'jl'
 
 // Azure naming convention: rg-<workload>-<environment>-<region>
 var namingPrefix = '${orgName}-${workloadName}-${environment}'
-var locationShort = 'uks' // UK South abbreviation
+var locationShort = 'weu' // West Europe abbreviation
 
 // Resource group
 resource rg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
@@ -40,7 +40,7 @@ module openAI './modules/openai.bicep' = {
     orgName: orgName
     openAIAccountName: 'oai-${namingPrefix}-${locationShort}'
     deploymentModelName: 'gpt-4'
-    modelVersion: '0613'
+    modelVersion: 'turbo-2024-04-09'
     deploymentCapacity: 10
   }
 }

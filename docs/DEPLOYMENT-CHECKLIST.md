@@ -136,7 +136,7 @@ After deployment completes:
 
 - Frontend: `https://swa-jl-jobfitai-dev-uks-<random>.azurestaticapps.net`
 - Backend: `https://func-jl-jobfitai-dev-uks-<random>.azurewebsites.net`
-- Resource Group: `rg-jl-jobfitai-dev-uks`
+- Resource Group: `rg-jl-jobfitai-dev-weu`
 
 ## 📖 Documentation
 
@@ -166,7 +166,7 @@ az provider register --namespace Microsoft.Insights
 ```bash
 # Test what-if deployment
 az deployment sub what-if \
-  --location uksouth \
+  --location westeurope \
   --template-file ./infrastructure/main.bicep \
   --parameters ./infrastructure/main.bicepparam
 ```
