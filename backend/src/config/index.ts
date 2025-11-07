@@ -1,3 +1,13 @@
+// Debug: Log environment variables at module load time
+console.log("Config module loaded:", {
+  AZURE_STORAGE_ACCOUNT_NAME: process.env.AZURE_STORAGE_ACCOUNT_NAME,
+  AZURE_STORAGE_CONNECTION_STRING: process.env.AZURE_STORAGE_CONNECTION_STRING
+    ? "SET"
+    : "NOT SET",
+  WEBSITE_INSTANCE_ID: process.env.WEBSITE_INSTANCE_ID ? "SET" : "NOT SET",
+  NODE_ENV: process.env.NODE_ENV,
+});
+
 export const config = {
   azure: {
     openai: {
