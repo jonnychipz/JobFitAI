@@ -9,6 +9,7 @@ resource "azurerm_resource_group" "main" {
 # Storage Account
 # Storage Account for Function App and CV files
 # Note: Service principal has Storage Blob Data Owner role at subscription level
+# Note: Shared key access is disabled by Azure Policy - using Azure AD authentication
 resource "azurerm_storage_account" "main" {
   name                     = local.storage_account_name
   resource_group_name      = azurerm_resource_group.main.name
@@ -21,7 +22,8 @@ resource "azurerm_storage_account" "main" {
 
   https_traffic_only_enabled      = true
   allow_nested_items_to_be_public = false
-  shared_access_key_enabled       = true # Required for Function App
+  # shared_access_key_enabled is enforced as false by Azure Policy
+  # Using Azure AD authentication instead
 
   network_rules {
     default_action = "Allow"
@@ -148,13 +150,13 @@ resource "azurerm_service_plan" "main" {
 
 # Function App
 resource "azurerm_linux_function_app" "main" {
-  name                       = local.function_app_name
-  resource_group_name        = azurerm_resource_group.main.name
-  location                   = azurerm_resource_group.main.location
-  service_plan_id            = azurerm_service_plan.main.id
-  storage_account_name       = azurerm_storage_account.main.name
-  storage_account_access_key = azurerm_storage_account.main.primary_access_key
-  https_only                 = true
+  name                         = local.function_app_name
+  resource_group_name          = azurerm_resource_group.main.name
+  location                     = azurerm_resource_group.main.location
+  service_plan_id              = azurerm_service_plan.main.id
+  storage_account_name         = azurerm_storage_account.main.name
+  storage_uses_managed_identity = true # Using managed identity instead of access key
+  https_only                   = true
 
   identity {
     type = "SystemAssigned"
@@ -180,7 +182,8 @@ resource "azurerm_linux_function_app" "main" {
     "WEBSITE_CONTENTSHARE"                  = azurerm_storage_share.function_content.name
     "APPLICATIONINSIGHTS_CONNECTION_STRING" = azurerm_application_insights.main.connection_string
     "AZURE_KEYVAULT_URL"                    = azurerm_key_vault.main.vault_uri
-    "AZURE_STORAGE_CONNECTION_STRING"       = azurerm_storage_account.main.primary_connection_string
+    # Using managed identity for storage access instead of connection string
+    "AZURE_STORAGE_ACCOUNT_NAME"            = azurerm_storage_account.main.name
     "AZURE_OPENAI_ENDPOINT"                 = azurerm_cognitive_account.openai.endpoint
     "AZURE_OPENAI_DEPLOYMENT_NAME"          = azurerm_cognitive_deployment.gpt4o.name
     "AZURE_OPENAI_API_KEY"                  = "@Microsoft.KeyVault(VaultName=${azurerm_key_vault.main.name};SecretName=AzureOpenAIApiKey)"
@@ -214,5 +217,12 @@ resource "azurerm_role_assignment" "keyvault_admin" {
 resource "azurerm_role_assignment" "function_keyvault_secrets_user" {
   scope                = azurerm_key_vault.main.id
   role_definition_name = "Key Vault Secrets User"
+  principal_id         = azurerm_linux_function_app.main.identity[0].principal_id
+}
+
+# Role Assignment: Function App access to Storage Account (replaces storage key access)
+resource "azurerm_role_assignment" "function_storage_blob_contributor" {
+  scope                = azurerm_storage_account.main.id
+  role_definition_name = "Storage Blob Data Contributor"
   principal_id         = azurerm_linux_function_app.main.identity[0].principal_id
 }
