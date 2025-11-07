@@ -26,6 +26,15 @@ resource "azurerm_storage_account" "main" {
     bypass         = ["AzureServices"]
   }
 
+  # Prevent Terraform from trying to read data plane properties during creation
+  lifecycle {
+    ignore_changes = [
+      blob_properties,
+      queue_properties,
+      share_properties
+    ]
+  }
+
   tags = local.common_tags
 }
 
@@ -88,7 +97,7 @@ resource "azurerm_cognitive_deployment" "gpt4o" {
   }
 
   scale {
-    type     = "Standard"
+    type     = "GlobalStandard"
     capacity = var.openai_deployment_capacity
   }
 }
@@ -100,7 +109,7 @@ resource "azurerm_key_vault" "main" {
   location                   = azurerm_resource_group.main.location
   tenant_id                  = data.azurerm_client_config.current.tenant_id
   sku_name                   = "standard"
-  soft_delete_retention_days = 7
+  soft_delete_retention_days = 90 # Immutable once set - matches existing
   purge_protection_enabled   = false
 
   enable_rbac_authorization = true
