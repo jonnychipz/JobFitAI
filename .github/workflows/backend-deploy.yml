@@ -70,17 +70,17 @@ jobs:
       - name: Prepare deployment package
         working-directory: ./backend
         run: |
-          # Remove dev dependencies for production
-          npm prune --production
-
           # Create deployment directory
           mkdir -p ../deploy/backend
 
-          # Copy necessary files
+          # Copy built files
           cp -r dist/* ../deploy/backend/
-          cp -r node_modules ../deploy/backend/
           cp package.json ../deploy/backend/
           cp host.json ../deploy/backend/
+
+          # Install production dependencies directly in deploy folder
+          cd ../deploy/backend
+          npm install --omit=dev
 
           echo "Deployment package prepared"
 
