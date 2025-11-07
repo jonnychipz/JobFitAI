@@ -9,8 +9,6 @@ terraform {
     storage_account_name = "sttfstatejobfitai"
     container_name       = "tfstate"
     key                  = "jobfitai.tfstate"
-    # Authentication is handled via environment variables:
-    # - Locally: Azure CLI (use_azuread_auth)
-    # - GitHub Actions: OIDC (ARM_USE_OIDC, ARM_OIDC_TOKEN, etc.)
+    use_oidc             = true
   }
 }
