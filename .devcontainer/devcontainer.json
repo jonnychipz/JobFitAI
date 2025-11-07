@@ -1,0 +1,64 @@
+{
+  "name": "JobFitAI Development",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
+  
+  "features": {
+    "ghcr.io/devcontainers/features/azure-cli:1": {
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {
+      "version": "latest"
+    },
+    "ghcr.io/azure/azure-dev/azd:latest": {}
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-azuretools.vscode-azurefunctions",
+        "ms-azuretools.vscode-bicep",
+        "ms-vscode.azure-account",
+        "github.copilot",
+        "github.copilot-chat",
+        "bradlc.vscode-tailwindcss",
+        "ms-vscode.vscode-typescript-next"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        },
+        "typescript.tsdk": "node_modules/typescript/lib",
+        "files.exclude": {
+          "**/node_modules": true,
+          "**/dist": true
+        }
+      }
+    }
+  },
+
+  "forwardPorts": [5173, 7071],
+  "portsAttributes": {
+    "5173": {
+      "label": "Frontend (Vite)",
+      "onAutoForward": "openBrowser"
+    },
+    "7071": {
+      "label": "Backend (Azure Functions)",
+      "onAutoForward": "notify"
+    }
+  },
+
+  "postCreateCommand": "npm run install:all && npm install -g azure-functions-core-tools@4 --unsafe-perm true",
+  
+  "postStartCommand": "echo 'JobFitAI development environment ready! Run npm run dev:frontend or npm run dev:backend to start.'",
+
+  "remoteUser": "node",
+  
+  "mounts": [
+    "source=${localEnv:HOME}/.azure,target=/home/node/.azure,type=bind,consistency=cached"
+  ]
+}
