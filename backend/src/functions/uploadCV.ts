@@ -5,6 +5,7 @@ import {
 } from "@azure/functions";
 import { v4 as uuidv4 } from "uuid";
 import { storageService } from "../services/storageService";
+import { documentParserService } from "../services/documentParserService";
 import { CVData, ApiResponse } from "../types";
 
 export async function uploadCVHandler(
@@ -20,19 +21,82 @@ export async function uploadCVHandler(
 
     // Handle multipart/form-data (file upload)
     if (contentType.includes("multipart/form-data")) {
-      // TODO: Implement file parsing (PDF/DOCX)
-      // For now, return error indicating feature not yet available
-      return {
-        status: 501,
-        jsonBody: {
-          success: false,
-          error: {
-            code: "NOT_IMPLEMENTED",
-            message:
-              "File upload parsing not yet implemented. Please use text upload instead.",
-          },
-        } as ApiResponse,
+      const formData = await request.formData();
+      const file = formData.get("file") as File | null;
+
+      if (!file) {
+        return {
+          status: 400,
+          jsonBody: {
+            success: false,
+            error: {
+              code: "INVALID_INPUT",
+              message: "File is required in form data",
+            },
+          } as ApiResponse,
+        };
+      }
+
+      const fileName = file.name;
+      const extension = fileName.toLowerCase().split(".").pop();
+
+      // Validate file type
+      if (!["pdf", "docx", "txt"].includes(extension || "")) {
+        return {
+          status: 400,
+          jsonBody: {
+            success: false,
+            error: {
+              code: "INVALID_FILE_TYPE",
+              message: "Only PDF, DOCX, and TXT files are supported",
+            },
+          } as ApiResponse,
+        };
+      }
+
+      // Read file as buffer
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+
+      // Parse document to extract text
+      context.log(`Parsing ${fileName} (${extension})`);
+      const extractedText = await documentParserService.parseDocument(
+        buffer,
+        fileName
+      );
+
+      if (!extractedText || extractedText.trim().length === 0) {
+        return {
+          status: 400,
+          jsonBody: {
+            success: false,
+            error: {
+              code: "EMPTY_DOCUMENT",
+              message: "No text could be extracted from the document",
+            },
+          } as ApiResponse,
+        };
+      }
+
+      const cvId = uuidv4();
+      const userId = "demo-user"; // TODO: Get from auth token
+
+      cvData = {
+        id: cvId,
+        userId: userId,
+        fileName: fileName,
+        uploadDate: new Date().toISOString(),
+        originalText: extractedText,
+        status: "processing",
       };
+
+      // Store original file and text
+      await storageService.uploadCV(cvId, fileName, buffer);
+
+      // Store metadata with extracted text
+      await storageService.uploadCVMetadata(cvData);
+
+      context.log(`CV uploaded and parsed successfully: ${cvId}`);
     }
     // Handle text upload
     else if (contentType.includes("application/json")) {
