@@ -8,7 +8,8 @@ console.log("Config module loaded:", {
   NODE_ENV: process.env.NODE_ENV,
 });
 
-export const config = {
+// Use a function to get config dynamically to ensure env vars are read at runtime
+export const getConfig = () => ({
   azure: {
     openai: {
       endpoint: process.env.AZURE_OPENAI_ENDPOINT || "",
@@ -43,4 +44,7 @@ export const config = {
   },
   // Environment detection - WEBSITE_INSTANCE_ID is set when running in Azure
   isDevelopment: !process.env.WEBSITE_INSTANCE_ID,
-};
+});
+
+// Export both the function and a static instance for backwards compatibility
+export const config = getConfig();

@@ -1,7 +1,7 @@
 import { OpenAIClient, AzureKeyCredential } from "@azure/openai";
 import { DefaultAzureCredential } from "@azure/identity";
 import { SecretClient } from "@azure/keyvault-secrets";
-import { config } from "../config";
+import { getConfig } from "../config";
 
 /**
  * Azure OpenAI Service for CV analysis and optimization
@@ -14,6 +14,8 @@ export class OpenAIService {
   private initialized: boolean = false;
 
   constructor() {
+    // Get deployment name dynamically
+    const config = getConfig();
     this.deployment = config.azure.openai.deployment;
   }
 
@@ -26,6 +28,8 @@ export class OpenAIService {
     }
 
     try {
+      // Get config dynamically to ensure env vars are read at initialization time
+      const config = getConfig();
       const endpoint = config.azure.openai.endpoint;
 
       if (!endpoint) {

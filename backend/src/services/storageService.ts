@@ -1,6 +1,6 @@
 import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
 import { DefaultAzureCredential } from "@azure/identity";
-import { config } from "../config";
+import { getConfig } from "../config";
 import { CVData } from "../types";
 
 /**
@@ -20,6 +20,9 @@ export class StorageService {
     }
 
     try {
+      // Get config dynamically to ensure env vars are read at initialization time
+      const config = getConfig();
+
       console.log("Storage initialization:", {
         isDevelopment: config.isDevelopment,
         hasAccountName: !!config.azure.storage.accountName,
