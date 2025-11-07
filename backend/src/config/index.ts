@@ -2,7 +2,10 @@ export const config = {
   azure: {
     openai: {
       endpoint: process.env.AZURE_OPENAI_ENDPOINT || "",
-      deployment: process.env.AZURE_OPENAI_DEPLOYMENT || "gpt-4o",
+      deployment:
+        process.env.AZURE_OPENAI_DEPLOYMENT_NAME ||
+        process.env.AZURE_OPENAI_DEPLOYMENT ||
+        "gpt-4o",
       apiVersion: process.env.AZURE_OPENAI_API_VERSION || "2024-02-15-preview",
       // API key retrieved from Key Vault in production, env var in dev
       apiKeySecretName: "AzureOpenAIApiKey",
@@ -28,8 +31,6 @@ export const config = {
     maxFileSizeMB: parseInt(process.env.MAX_FILE_SIZE_MB || "10", 10),
     allowedExtensions: [".pdf", ".docx", ".txt"],
   },
-  // Environment detection
-  isDevelopment:
-    process.env.NODE_ENV === "development" ||
-    !process.env.AZURE_FUNCTIONS_ENVIRONMENT,
+  // Environment detection - WEBSITE_INSTANCE_ID is set when running in Azure
+  isDevelopment: !process.env.WEBSITE_INSTANCE_ID,
 };
