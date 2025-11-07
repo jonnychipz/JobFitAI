@@ -32,7 +32,6 @@ provider "azurerm" {
     }
   }
 
-  # Authentication is handled via environment variables
-  # - Locally: Azure CLI
-  # - GitHub Actions: OIDC (ARM_USE_OIDC, ARM_CLIENT_ID, etc.)
+  # Use OIDC authentication in GitHub Actions, Azure CLI locally
+  use_oidc = true
 }
