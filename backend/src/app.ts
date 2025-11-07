@@ -170,5 +170,4 @@ app.http("deleteCV", {
   },
 });
 
-// Export for Azure Functions v4 runtime
-module.exports = app;
+// No export needed - Azure Functions v4 runtime discovers registered functions automatically
