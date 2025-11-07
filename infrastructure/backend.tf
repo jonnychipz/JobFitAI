@@ -9,7 +9,8 @@ terraform {
     storage_account_name = "sttfstatejobfitai"
     container_name       = "tfstate"
     key                  = "jobfitai.tfstate"
-    # Azure AD authentication works for both local (Azure CLI) and GitHub Actions (OIDC)
-    use_azuread_auth = true
+    # Authentication is handled via environment variables:
+    # - Locally: Azure CLI (use_azuread_auth)
+    # - GitHub Actions: OIDC (ARM_USE_OIDC, ARM_OIDC_TOKEN, etc.)
   }
 }
