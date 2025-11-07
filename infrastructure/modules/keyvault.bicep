@@ -14,9 +14,16 @@ param orgName string
 @description('The Key Vault name')
 param keyVaultName string
 
-@secure()
-@description('The Azure OpenAI API key to store')
-param azureOpenAIApiKey string
+@description('The Azure OpenAI endpoint URL')
+param openAIEndpoint string
+
+@description('The Azure OpenAI account name for getting the key')
+param openAIAccountName string
+
+// Get reference to existing Azure OpenAI account
+resource openAIAccount 'Microsoft.CognitiveServices/accounts@2023-05-01' existing = {
+  name: openAIAccountName
+}
 
 resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
   name: keyVaultName
@@ -51,7 +58,16 @@ resource openAISecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
   parent: keyVault
   name: 'AzureOpenAIApiKey'
   properties: {
-    value: azureOpenAIApiKey
+    value: openAIAccount.listKeys().key1
+  }
+}
+
+// Store Azure OpenAI Endpoint
+resource openAIEndpointSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
+  parent: keyVault
+  name: 'AzureOpenAIEndpoint'
+  properties: {
+    value: openAIEndpoint
   }
 }
 

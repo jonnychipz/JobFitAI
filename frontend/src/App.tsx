@@ -1,8 +1,8 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { HomePage } from '@/pages/HomePage';
-import { UploadPage } from '@/pages/UploadPage';
-import { DashboardPage } from '@/pages/DashboardPage';
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HomePage } from "@/pages/HomePage";
+import { UploadPage } from "@/pages/UploadPage";
+import { CVAnalysisPage } from "@/pages/CVAnalysisPage";
 
 export const App: React.FC = () => {
   return (
@@ -10,8 +10,7 @@ export const App: React.FC = () => {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/upload" element={<UploadPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/jobs" element={<div>Job Match (Coming Soon)</div>} />
+        <Route path="/analysis" element={<CVAnalysisPage />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,7 +1,8 @@
-import React from 'react';
-import { Layout } from '@/components/Layout';
-import { ArrowRight, Sparkles, Target, TrendingUp } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { Layout } from "@/components/Layout";
+import { ArrowRight, Sparkles, Target, TrendingUp } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { PrivacyNotice } from "@/components/PrivacyNotice";
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -9,18 +10,21 @@ export const HomePage: React.FC = () => {
   const features = [
     {
       icon: Sparkles,
-      title: 'AI-Powered Analysis',
-      description: 'Leverage OpenAI to extract and analyze your CV data with precision.',
+      title: "AI-Powered Analysis",
+      description:
+        "Leverage OpenAI to extract and analyze your CV data with precision.",
     },
     {
       icon: Target,
-      title: 'ATS Optimization',
-      description: 'Get tailored suggestions to make your CV stand out to applicant tracking systems.',
+      title: "ATS Optimization",
+      description:
+        "Get tailored suggestions to make your CV stand out to applicant tracking systems.",
     },
     {
       icon: TrendingUp,
-      title: 'Career Insights',
-      description: 'Receive market trend analysis and personalized career recommendations.',
+      title: "Career Insights",
+      description:
+        "Receive market trend analysis and personalized career recommendations.",
     },
   ];
 
@@ -30,15 +34,16 @@ export const HomePage: React.FC = () => {
         {/* Hero Section */}
         <div className="text-center py-20">
           <h1 className="text-5xl md:text-6xl font-bold text-slate-900 dark:text-slate-100 mb-6">
-            Transform Your CV with{' '}
+            Transform Your CV with{" "}
             <span className="text-primary-600">AI Intelligence</span>
           </h1>
           <p className="text-xl text-slate-600 dark:text-slate-400 mb-8 max-w-3xl mx-auto">
-            Upload your CV and let our AI analyze, optimize, and tailor it for your dream job.
-            Stand out from the competition with data-driven insights.
+            Upload your CV and let our AI analyze, optimize, and tailor it for
+            your dream job. Stand out from the competition with data-driven
+            insights.
           </p>
           <button
-            onClick={() => navigate('/upload')}
+            onClick={() => navigate("/upload")}
             className="btn btn-primary text-lg px-8 py-3 inline-flex items-center space-x-2"
           >
             <span>Get Started</span>
@@ -85,14 +90,20 @@ export const HomePage: React.FC = () => {
             Ready to optimize your CV?
           </h2>
           <p className="text-lg text-slate-600 dark:text-slate-400 mb-8">
-            Join thousands of professionals who have improved their job prospects.
+            Join thousands of professionals who have improved their job
+            prospects.
           </p>
           <button
-            onClick={() => navigate('/upload')}
+            onClick={() => navigate("/upload")}
             className="btn btn-primary text-lg px-8 py-3"
           >
             Start Now - It's Free
           </button>
+        </div>
+
+        {/* Privacy Section */}
+        <div className="pb-16">
+          <PrivacyNotice />
         </div>
       </div>
     </Layout>

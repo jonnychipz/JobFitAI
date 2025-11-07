@@ -14,10 +14,6 @@ param workloadName string = 'jobfitai'
 @description('The organization or project identifier')
 param orgName string = 'jl'
 
-@secure()
-@description('The Azure OpenAI API key')
-param azureOpenAIApiKey string
-
 // Azure naming convention: rg-<workload>-<environment>-<region>
 var namingPrefix = '${orgName}-${workloadName}-${environment}'
 var locationShort = 'uks' // UK South abbreviation
@@ -34,6 +30,21 @@ resource rg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   }
 }
 
+// Azure OpenAI module - oai-<workload>-<environment>-<region>
+module openAI './modules/openai.bicep' = {
+  scope: rg
+  params: {
+    location: location
+    environment: environment
+    workloadName: workloadName
+    orgName: orgName
+    openAIAccountName: 'oai-${namingPrefix}-${locationShort}'
+    deploymentModelName: 'gpt-4'
+    modelVersion: '0613'
+    deploymentCapacity: 10
+  }
+}
+
 // Key Vault module - kv-<workload>-<environment>-<region>
 module keyVault './modules/keyvault.bicep' = {
   scope: rg
@@ -43,7 +54,8 @@ module keyVault './modules/keyvault.bicep' = {
     workloadName: workloadName
     orgName: orgName
     keyVaultName: 'kv-${namingPrefix}-${locationShort}'
-    azureOpenAIApiKey: azureOpenAIApiKey
+    openAIEndpoint: openAI.outputs.openAIEndpoint
+    openAIAccountName: openAI.outputs.openAIAccountName
   }
 }
 
@@ -85,6 +97,8 @@ module functionApp './modules/functionapp.bicep' = {
     storageAccountName: storage.outputs.storageAccountName
     appInsightsConnectionString: appInsights.outputs.connectionString
     keyVaultName: keyVault.outputs.keyVaultName
+    openAIEndpoint: openAI.outputs.openAIEndpoint
+    openAIDeploymentName: openAI.outputs.deploymentName
   }
 }
 
@@ -108,3 +122,5 @@ output functionAppName string = functionApp.outputs.functionAppName
 output staticWebAppName string = staticWebApp.outputs.staticWebAppName
 output functionAppUrl string = functionApp.outputs.functionAppUrl
 output staticWebAppUrl string = staticWebApp.outputs.staticWebAppUrl
+output openAIEndpoint string = openAI.outputs.openAIEndpoint
+output openAIDeploymentName string = openAI.outputs.deploymentName
