@@ -41,8 +41,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
 
       - name: Azure Login with OIDC
         uses: azure/login@v2
@@ -51,13 +49,17 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Get Static Web App Details from Terraform
+      - name: Get Static Web App Details
         id: get-swa
         run: |
-          cd infrastructure
-          terraform init
-          SWA_NAME=$(terraform output -raw static_web_app_name)
-          SWA_API_KEY=$(terraform output -raw static_web_app_api_key)
+          # Static Web App details from infrastructure
+          SWA_NAME="stapp-jl-jobfitai-dev-weu"
+          # Retrieve API key from Azure
+          SWA_API_KEY=$(az staticwebapp secrets list \
+            --name $SWA_NAME \
+            --resource-group rg-jl-jobfitai-dev-weu \
+            --query "properties.apiKey" \
+            --output tsv)
           echo "swa_name=$SWA_NAME" >> $GITHUB_OUTPUT
           echo "::add-mask::$SWA_API_KEY"
           echo "swa_api_key=$SWA_API_KEY" >> $GITHUB_OUTPUT
@@ -66,14 +68,14 @@ jobs:
       - name: Get Function App URL
         id: get-function-url
         run: |
-          cd infrastructure
-          FUNCTION_APP_URL=$(terraform output -raw function_app_url)
+          # Function App URL from infrastructure
+          FUNCTION_APP_URL="https://func-jl-jobfitai-dev-weu.azurewebsites.net/api"
           echo "function_app_url=$FUNCTION_APP_URL" >> $GITHUB_OUTPUT
           echo "Function App URL: $FUNCTION_APP_URL"
 
       - name: Install dependencies
         working-directory: ./frontend
-        run: npm ci
+        run: npm install --production=false
 
       - name: Build frontend
         working-directory: ./frontend
