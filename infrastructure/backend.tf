@@ -10,5 +10,10 @@ terraform {
     container_name       = "tfstate"
     key                  = "jobfitai.tfstate"
     use_oidc             = true
+    # The following are required for OIDC and are set via environment variables:
+    # - ARM_CLIENT_ID
+    # - ARM_TENANT_ID
+    # - ARM_SUBSCRIPTION_ID
+    # - ARM_OIDC_TOKEN (from GitHub OIDC token)
   }
 }
