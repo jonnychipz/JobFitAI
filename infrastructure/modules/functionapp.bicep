@@ -20,6 +20,9 @@ param appServicePlanName string
 @description('The storage account name')
 param storageAccountName string
 
+@description('The file share name for Function App content')
+param fileShareName string
+
 @description('The Application Insights connection string')
 @secure()
 param appInsightsConnectionString string
@@ -87,7 +90,7 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
         }
         {
           name: 'WEBSITE_CONTENTSHARE'
-          value: toLower(functionAppName)
+          value: fileShareName
         }
         {
           name: 'FUNCTIONS_EXTENSION_VERSION'

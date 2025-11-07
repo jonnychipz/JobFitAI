@@ -95,6 +95,7 @@ module functionApp './modules/functionapp.bicep' = {
     functionAppName: 'func-${namingPrefix}-${locationShort}'
     appServicePlanName: 'asp-${namingPrefix}-${locationShort}'
     storageAccountName: storage.outputs.storageAccountName
+    fileShareName: storage.outputs.fileShareName
     appInsightsConnectionString: appInsights.outputs.connectionString
     keyVaultName: keyVault.outputs.keyVaultName
     openAIEndpoint: openAI.outputs.openAIEndpoint

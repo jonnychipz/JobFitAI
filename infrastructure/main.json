@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.38.33.27573",
-      "templateHash": "9566567698654573486"
+      "templateHash": "10640377525719024649"
     }
   },
   "parameters": {
@@ -88,10 +88,10 @@
             "value": "[format('oai-{0}-{1}', variables('namingPrefix'), variables('locationShort'))]"
           },
           "deploymentModelName": {
-            "value": "gpt-4"
+            "value": "gpt-4o"
           },
           "modelVersion": {
-            "value": "turbo-2024-04-09"
+            "value": "2024-05-13"
           },
           "deploymentCapacity": {
             "value": 10
@@ -104,7 +104,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.38.33.27573",
-              "templateHash": "10649854794223081437"
+              "templateHash": "12031473600920056813"
             }
           },
           "parameters": {
@@ -140,16 +140,16 @@
             },
             "deploymentModelName": {
               "type": "string",
-              "defaultValue": "gpt-4",
+              "defaultValue": "gpt-4o",
               "metadata": {
                 "description": "The deployment model name"
               }
             },
             "modelVersion": {
               "type": "string",
-              "defaultValue": "turbo-2024-04-09",
+              "defaultValue": "2024-05-13",
               "metadata": {
-                "description": "The deployment model version - using turbo-2024-04-09 (latest stable)"
+                "description": "The deployment model version - using 2024-05-13 (GPT-4o)"
               }
             },
             "deploymentCapacity": {
@@ -189,7 +189,7 @@
               "apiVersion": "2023-05-01",
               "name": "[format('{0}/{1}', parameters('openAIAccountName'), parameters('deploymentModelName'))]",
               "sku": {
-                "name": "Standard",
+                "name": "GlobalStandard",
                 "capacity": "[parameters('deploymentCapacity')]"
               },
               "properties": {
@@ -425,7 +425,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.38.33.27573",
-              "templateHash": "16430736746989667721"
+              "templateHash": "7940805410286587354"
             }
           },
           "parameters": {
@@ -506,6 +506,25 @@
               "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccountName'), 'default')]"
               ]
+            },
+            {
+              "type": "Microsoft.Storage/storageAccounts/fileServices",
+              "apiVersion": "2023-01-01",
+              "name": "[format('{0}/{1}', parameters('storageAccountName'), 'default')]",
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+              "apiVersion": "2023-01-01",
+              "name": "[format('{0}/{1}/{2}', parameters('storageAccountName'), 'default', 'function-content')]",
+              "properties": {
+                "shareQuota": 5120
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('storageAccountName'), 'default')]"
+              ]
             }
           ],
           "outputs": {
@@ -520,6 +539,10 @@
             "blobEndpoint": {
               "type": "string",
               "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2023-01-01').primaryEndpoints.blob]"
+            },
+            "fileShareName": {
+              "type": "string",
+              "value": "function-content"
             }
           }
         }
@@ -704,6 +727,9 @@
           "storageAccountName": {
             "value": "[reference('storage').outputs.storageAccountName.value]"
           },
+          "fileShareName": {
+            "value": "[reference('storage').outputs.fileShareName.value]"
+          },
           "appInsightsConnectionString": {
             "value": "[reference('appInsights').outputs.connectionString.value]"
           },
@@ -724,7 +750,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.38.33.27573",
-              "templateHash": "6105644345787163580"
+              "templateHash": "13986592639670063784"
             }
           },
           "parameters": {
@@ -768,6 +794,12 @@
               "type": "string",
               "metadata": {
                 "description": "The storage account name"
+              }
+            },
+            "fileShareName": {
+              "type": "string",
+              "metadata": {
+                "description": "The file share name for Function App content"
               }
             },
             "appInsightsConnectionString": {
@@ -846,7 +878,7 @@
                     },
                     {
                       "name": "WEBSITE_CONTENTSHARE",
-                      "value": "[toLower(parameters('functionAppName'))]"
+                      "value": "[parameters('fileShareName')]"
                     },
                     {
                       "name": "FUNCTIONS_EXTENSION_VERSION",

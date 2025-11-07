@@ -55,6 +55,22 @@ resource cvFilesContainer 'Microsoft.Storage/storageAccounts/blobServices/contai
   }
 }
 
+// File service for Function App content
+resource fileService 'Microsoft.Storage/storageAccounts/fileServices@2023-01-01' = {
+  parent: storageAccount
+  name: 'default'
+}
+
+// File share for Function App
+resource functionContentShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2023-01-01' = {
+  parent: fileService
+  name: 'function-content'
+  properties: {
+    shareQuota: 5120 // 5GB
+  }
+}
+
 output storageAccountName string = storageAccount.name
 output storageAccountId string = storageAccount.id
 output blobEndpoint string = storageAccount.properties.primaryEndpoints.blob
+output fileShareName string = functionContentShare.name
