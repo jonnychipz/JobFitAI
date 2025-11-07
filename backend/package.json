@@ -2,7 +2,7 @@
   "name": "jobfitai-backend",
   "version": "1.0.0",
   "description": "Azure Functions backend for JobFitAI CV Explorer",
-  "main": "dist/index.js",
+  "main": "index.js",
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
