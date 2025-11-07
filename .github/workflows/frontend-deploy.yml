@@ -1,0 +1,127 @@
+name: Frontend Deployment
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend-deploy.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "frontend/**"
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+env:
+  AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+  AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+  NODE_VERSION: "20.x"
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy Frontend
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          lfs: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Azure Login with OIDC
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Get Static Web App Details from Terraform
+        id: get-swa
+        run: |
+          cd infrastructure
+          terraform init
+          SWA_NAME=$(terraform output -raw static_web_app_name)
+          SWA_API_KEY=$(terraform output -raw static_web_app_api_key)
+          echo "swa_name=$SWA_NAME" >> $GITHUB_OUTPUT
+          echo "::add-mask::$SWA_API_KEY"
+          echo "swa_api_key=$SWA_API_KEY" >> $GITHUB_OUTPUT
+          echo "Static Web App: $SWA_NAME"
+
+      - name: Get Function App URL
+        id: get-function-url
+        run: |
+          cd infrastructure
+          FUNCTION_APP_URL=$(terraform output -raw function_app_url)
+          echo "function_app_url=$FUNCTION_APP_URL" >> $GITHUB_OUTPUT
+          echo "Function App URL: $FUNCTION_APP_URL"
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: ./frontend
+        env:
+          VITE_API_URL: ${{ steps.get-function-url.outputs.function_app_url }}
+        run: npm run build
+
+      - name: Deploy to Azure Static Web Apps
+        id: deploy-swa
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ steps.get-swa.outputs.swa_api_key }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: "upload"
+          app_location: "./frontend"
+          output_location: "dist"
+          skip_app_build: true
+
+      - name: Verify deployment
+        run: |
+          SWA_NAME="${{ steps.get-swa.outputs.swa_name }}"
+
+          # Get the Static Web App URL
+          SWA_URL=$(az staticwebapp show --name "$SWA_NAME" --resource-group "rg-jl-jobfitai-dev-weu" --query "defaultHostname" -o tsv)
+
+          echo "Waiting for Static Web App to be ready..."
+          sleep 30
+
+          echo "Testing Static Web App: https://$SWA_URL"
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://$SWA_URL" || echo "000")
+
+          if [ "$HTTP_STATUS" = "200" ]; then
+            echo "✅ Static Web App is live!"
+          else
+            echo "⚠️ Static Web App returned status: $HTTP_STATUS"
+          fi
+
+      - name: Summary
+        if: success()
+        run: |
+          SWA_NAME="${{ steps.get-swa.outputs.swa_name }}"
+          SWA_URL=$(az staticwebapp show --name "$SWA_NAME" --resource-group "rg-jl-jobfitai-dev-weu" --query "defaultHostname" -o tsv)
+
+          echo "## Frontend Deployment Complete! 🚀" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Static Web App" >> $GITHUB_STEP_SUMMARY
+          echo "- **Name**: $SWA_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL**: [https://$SWA_URL](https://$SWA_URL)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "View in Azure Portal: [Static Web App](https://portal.azure.com/#@${{ secrets.AZURE_TENANT_ID }}/resource/subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/rg-jl-jobfitai-dev-weu/providers/Microsoft.Web/staticSites/$SWA_NAME)" >> $GITHUB_STEP_SUMMARY

@@ -19,6 +19,14 @@ build/
 .env.production.local
 local.settings.json
 
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+*.tfvars
+!terraform.tfvars.example
+
 # IDE
 
 .idea/

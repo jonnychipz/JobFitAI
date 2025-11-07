@@ -1,0 +1,10 @@
+# Terraform Variable Values
+# Copy this file to terraform.tfvars and customize as needed
+
+location              = "westeurope"
+environment           = "dev"
+workload_name         = "jobfitai"
+org_name              = "jl"
+openai_model_name     = "gpt-4o"
+openai_model_version  = "2024-05-13"
+openai_deployment_capacity = 10

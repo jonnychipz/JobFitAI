@@ -60,44 +60,59 @@ JobFitAI uses a serverless architecture on Azure with automated deployment via G
 ### ✅ Recommended: GitHub Actions (Automated)
 
 **Pros:**
-- Fully automated deployment pipeline
+
+- Fully automated deployment pipeline with separate workflows
 - OIDC authentication (no stored credentials)
-- Infrastructure and application deployed together
+- Infrastructure deployed independently from applications
 - Built-in validation and testing
 - Easy rollbacks
+- Deploy only what changed (infrastructure, frontend, or backend)
 
 **Setup Time:** ~15 minutes
 
 **Steps:**
+
 1. Configure Azure Service Principal with OIDC
 2. Add 3 GitHub secrets
-3. Push to main branch
-4. Monitor deployment in GitHub Actions
+3. Push changes to main branch
+4. Monitor deployment in GitHub Actions (separate workflows)
+
+**Workflows:**
+
+- **Infrastructure**: Triggers on `infrastructure/**` changes
+- **Backend**: Triggers on `backend/**` changes
+- **Frontend**: Triggers on `frontend/**` changes
 
 **Full Instructions:** [GITHUB-SETUP.md](./GITHUB-SETUP.md)
 
 ### Alternative: Manual Deployment
 
 **When to use:**
+
 - Initial testing
 - Troubleshooting deployments
 - Learning the infrastructure
 
 **Steps:**
 
-#### 1. Deploy Infrastructure
+#### 1. Deploy Infrastructure with Terraform
 
 ```bash
 # Login and set subscription
 az login
 az account set --subscription "YOUR_SUBSCRIPTION_ID"
 
-# Deploy Bicep templates
-az deployment sub create \
-  --name "jobfitai-$(date +%Y%m%d-%H%M%S)" \
-  --location westeurope \
-  --template-file infrastructure/main.bicep \
-  --parameters infrastructure/main.bicepparam
+# Navigate to infrastructure directory
+cd infrastructure
+
+# Initialize Terraform
+terraform init
+
+# Review planned changes
+terraform plan
+
+# Deploy infrastructure
+terraform apply
 ```
 
 #### 2. Deploy Backend
@@ -126,16 +141,16 @@ npx @azure/static-web-apps-cli deploy \
 
 ### Resources Created
 
-| Resource | Type | Purpose |
-|----------|------|---------|
-| Resource Group | `rg-jl-jobfitai-dev-weu` | Container for all resources |
-| Function App | `func-jl-jobfitai-dev-uks-*` | Backend API (Node.js 20) |
-| Static Web App | `swa-jl-jobfitai-dev-uks-*` | Frontend hosting (React) |
-| Storage Account | `stjljobfitaidevuks*` | CV file storage |
-| Key Vault | `kv-jl-jobfitai-dev-uks` | Secrets management |
-| Azure OpenAI | `oai-jl-jobfitai-dev-uks` | GPT-4 AI service |
-| Application Insights | `appi-jl-jobfitai-dev-uks` | Monitoring & logs |
-| Log Analytics | `log-jl-jobfitai-dev-uks` | Log aggregation |
+| Resource             | Type                         | Purpose                     |
+| -------------------- | ---------------------------- | --------------------------- |
+| Resource Group       | `rg-jl-jobfitai-dev-weu`     | Container for all resources |
+| Function App         | `func-jl-jobfitai-dev-uks-*` | Backend API (Node.js 20)    |
+| Static Web App       | `swa-jl-jobfitai-dev-uks-*`  | Frontend hosting (React)    |
+| Storage Account      | `stjljobfitaidevuks*`        | CV file storage             |
+| Key Vault            | `kv-jl-jobfitai-dev-uks`     | Secrets management          |
+| Azure OpenAI         | `oai-jl-jobfitai-dev-uks`    | GPT-4 AI service            |
+| Application Insights | `appi-jl-jobfitai-dev-uks`   | Monitoring & logs           |
+| Log Analytics        | `log-jl-jobfitai-dev-uks`    | Log aggregation             |
 
 ### Security Features
 
@@ -151,62 +166,96 @@ npx @azure/static-web-apps-cli deploy \
 
 For automated deployment, configure these secrets in GitHub:
 
-| Secret Name | Description | How to Get |
-|-------------|-------------|------------|
-| `AZURE_CLIENT_ID` | Service Principal App ID | See [GITHUB-SETUP.md](./GITHUB-SETUP.md) |
-| `AZURE_TENANT_ID` | Azure AD Tenant ID | `az account show --query tenantId -o tsv` |
-| `AZURE_SUBSCRIPTION_ID` | Azure Subscription ID | `az account show --query id -o tsv` |
+| Secret Name             | Description              | How to Get                                |
+| ----------------------- | ------------------------ | ----------------------------------------- |
+| `AZURE_CLIENT_ID`       | Service Principal App ID | See [GITHUB-SETUP.md](./GITHUB-SETUP.md)  |
+| `AZURE_TENANT_ID`       | Azure AD Tenant ID       | `az account show --query tenantId -o tsv` |
+| `AZURE_SUBSCRIPTION_ID` | Azure Subscription ID    | `az account show --query id -o tsv`       |
 
 ### Environment Variables
 
 **Backend (Auto-configured):**
+
 - `AZURE_OPENAI_ENDPOINT` - Retrieved from Key Vault
 - `AZURE_OPENAI_DEPLOYMENT_NAME` - Set to "gpt-4"
 - `AZURE_OPENAI_API_KEY` - Key Vault reference
 - `APPLICATIONINSIGHTS_CONNECTION_STRING` - Auto-configured
 
 **Frontend (Set during build):**
+
 - `VITE_API_URL` - Function App URL
 
 ## Deployment Workflow
 
-### GitHub Actions Pipeline
+### GitHub Actions Pipelines
+
+**Three Independent Workflows:**
+
+#### 1. Infrastructure Deployment (`infrastructure-deploy.yml`)
 
 ```
-1. Validate Bicep ──► Check syntax and what-if preview
-                      (Runs on all PRs)
-                      
-2. Deploy Infrastructure ──► Create/update Azure resources
-                            (Main branch only)
-                            
-3. Build & Deploy Backend ──► Compile TypeScript
-                              Deploy to Function App
-                              
-4. Build & Deploy Frontend ──► Build React app
-                               Deploy to Static Web App
-                               
-5. Post-Deployment Tests ──► Health checks
-                             Deployment summary
+Triggers: Changes to infrastructure/** files
+
+1. Terraform Format Check ──► Validate code style
+2. Terraform Init ──► Initialize providers
+3. Terraform Validate ──► Check configuration
+4. Terraform Plan ──► Preview changes (PRs)
+5. Terraform Apply ──► Deploy resources (main branch)
+6. Output Summary ──► Resource details
 ```
 
-### Trigger Events
+#### 2. Backend Deployment (`backend-deploy.yml`)
 
-- **Pull Request**: Validation only (safe preview)
-- **Push to main**: Full deployment
-- **Manual**: Workflow dispatch
+```
+Triggers: Changes to backend/** files
+
+1. Get Function App Name ──► From Terraform outputs
+2. Install Dependencies ──► npm ci
+3. Build TypeScript ──► Compile to JavaScript
+4. Run Tests ──► Unit/integration tests
+5. Deploy to Functions ──► Azure Functions deployment
+6. Health Check ──► Verify deployment
+```
+
+#### 3. Frontend Deployment (`frontend-deploy.yml`)
+
+````
+Triggers: Changes to frontend/** files
+
+1. Get SWA Details ──► From Terraform outputs
+2. Install Dependencies ──► npm ci
+3. Build React App ──► Vite build with API URL
+4. Deploy to SWA ──► Static Web App deployment
+5. Verify Deployment ──► Check accessibility
+```### Trigger Events
+
+- **Pull Request**: Validation and planning only (safe preview)
+- **Push to main**: Full deployment of changed components
+- **Manual**: Workflow dispatch for any workflow
+- **Path-based**: Each workflow triggers only on relevant file changes
+
+### Deployment Efficiency
+
+Only the changed component deploys:
+- Change `infrastructure/` → Only infrastructure workflow runs
+- Change `backend/` → Only backend workflow runs
+- Change `frontend/` → Only frontend workflow runs
+- Change multiple → Relevant workflows run in parallel
 
 ## Verification
 
 ### After Deployment
 
 1. **Check Azure Resources:**
+
    ```bash
    az resource list \
      --resource-group rg-jl-jobfitai-dev-weu \
      --output table
-   ```
+````
 
 2. **Test Backend API:**
+
    ```bash
    curl https://func-jl-jobfitai-dev-uks-*.azurewebsites.net/api/health
    ```
@@ -224,6 +273,7 @@ For automated deployment, configure these secrets in GitHub:
 ## Cost Estimate
 
 **Development Environment:**
+
 - Azure Functions (Consumption): ~$0-5/month
 - Static Web App (Free): $0
 - Storage Account: ~$1-2/month
@@ -238,10 +288,12 @@ For automated deployment, configure these secrets in GitHub:
 ### Common Issues
 
 **1. "Insufficient privileges" error**
+
 - Wait 5-10 minutes for Azure AD role propagation
 - Verify service principal has both Contributor and User Access Administrator roles
 
 **2. "Resource provider not registered"**
+
 ```bash
 az provider register --namespace Microsoft.Web
 az provider register --namespace Microsoft.Storage
@@ -250,12 +302,27 @@ az provider register --namespace Microsoft.CognitiveServices
 az provider register --namespace Microsoft.Insights
 ```
 
-**3. Bicep validation fails**
+**3. Terraform validation fails**
+
 ```bash
-az bicep build --file infrastructure/main.bicep
+cd infrastructure
+terraform init
+terraform validate
+terraform fmt -check -recursive
 ```
 
 **4. Function App health check fails**
+
+````
+
+**3. Bicep validation fails**
+
+```bash
+az bicep build --file infrastructure/main.bicep
+````
+
+**4. Function App health check fails**
+
 - Check Application Insights for errors
 - Verify Key Vault access for managed identity
 - Check environment variables in Azure Portal
@@ -276,6 +343,11 @@ For local development setup, see [QUICKSTART.md](./QUICKSTART.md).
 To delete all Azure resources:
 
 ```bash
+# Option 1: Using Terraform
+cd infrastructure
+terraform destroy
+
+# Option 2: Delete resource group directly
 az group delete \
   --name rg-jl-jobfitai-dev-weu \
   --yes --no-wait
