@@ -5,6 +5,12 @@ param location string
 @description('The environment name')
 param environment string
 
+@description('The workload name')
+param workloadName string
+
+@description('The organization name')
+param orgName string
+
 @description('The Static Web App name')
 param staticWebAppName string
 
@@ -12,7 +18,10 @@ resource staticWebApp 'Microsoft.Web/staticSites@2023-01-01' = {
   name: staticWebAppName
   location: location
   tags: {
-    environment: environment
+    Environment: environment
+    Workload: workloadName
+    ManagedBy: 'Bicep'
+    CostCenter: orgName
   }
   sku: {
     name: 'Free'

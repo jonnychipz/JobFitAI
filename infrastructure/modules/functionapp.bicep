@@ -5,8 +5,17 @@ param location string
 @description('The environment name')
 param environment string
 
+@description('The workload name')
+param workloadName string
+
+@description('The organization name')
+param orgName string
+
 @description('The Function App name')
 param functionAppName string
+
+@description('The App Service Plan name')
+param appServicePlanName string
 
 @description('The storage account name')
 param storageAccountName string
@@ -25,10 +34,13 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' existing 
 
 // App Service Plan for Functions
 resource appServicePlan 'Microsoft.Web/serverfarms@2023-01-01' = {
-  name: '${functionAppName}-plan'
+  name: appServicePlanName
   location: location
   tags: {
-    environment: environment
+    Environment: environment
+    Workload: workloadName
+    ManagedBy: 'Bicep'
+    CostCenter: orgName
   }
   sku: {
     name: 'Y1'
@@ -45,7 +57,10 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
   location: location
   kind: 'functionapp,linux'
   tags: {
-    environment: environment
+    Environment: environment
+    Workload: workloadName
+    ManagedBy: 'Bicep'
+    CostCenter: orgName
   }
   identity: {
     type: 'SystemAssigned'

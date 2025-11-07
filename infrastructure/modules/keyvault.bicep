@@ -5,6 +5,12 @@ param location string
 @description('The environment name')
 param environment string
 
+@description('The workload name')
+param workloadName string
+
+@description('The organization name')
+param orgName string
+
 @description('The Key Vault name')
 param keyVaultName string
 
@@ -16,7 +22,10 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
   name: keyVaultName
   location: location
   tags: {
-    environment: environment
+    Environment: environment
+    Workload: workloadName
+    ManagedBy: 'Bicep'
+    CostCenter: orgName
   }
   properties: {
     sku: {

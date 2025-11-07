@@ -5,15 +5,27 @@ param location string
 @description('The environment name')
 param environment string
 
+@description('The workload name')
+param workloadName string
+
+@description('The organization name')
+param orgName string
+
 @description('The Application Insights name')
 param appInsightsName string
 
+@description('The Log Analytics Workspace name')
+param logAnalyticsName string
+
 // Log Analytics Workspace
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
-  name: '${appInsightsName}-law'
+  name: logAnalyticsName
   location: location
   tags: {
-    environment: environment
+    Environment: environment
+    Workload: workloadName
+    ManagedBy: 'Bicep'
+    CostCenter: orgName
   }
   properties: {
     sku: {
@@ -29,7 +41,10 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
   location: location
   kind: 'web'
   tags: {
-    environment: environment
+    Environment: environment
+    Workload: workloadName
+    ManagedBy: 'Bicep'
+    CostCenter: orgName
   }
   properties: {
     Application_Type: 'web'

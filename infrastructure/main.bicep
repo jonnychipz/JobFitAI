@@ -2,76 +2,101 @@
 targetScope = 'subscription'
 
 @description('The Azure region for all resources')
-param location string = 'eastus'
+param location string = 'uksouth'
 
 @description('The environment name (dev, staging, prod)')
 @allowed(['dev', 'staging', 'prod'])
 param environment string = 'dev'
 
-@description('The resource prefix for naming')
-param resourcePrefix string = 'jobfitai'
+@description('The workload/application name for naming')
+param workloadName string = 'jobfitai'
+
+@description('The organization or project identifier')
+param orgName string = 'jl'
 
 @secure()
 @description('The Azure OpenAI API key')
 param azureOpenAIApiKey string
 
+// Azure naming convention: rg-<workload>-<environment>-<region>
+var namingPrefix = '${orgName}-${workloadName}-${environment}'
+var locationShort = 'uks' // UK South abbreviation
+
 // Resource group
 resource rg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
-  name: '${resourcePrefix}-${environment}-rg'
+  name: 'rg-${namingPrefix}-${locationShort}'
   location: location
+  tags: {
+    Environment: environment
+    Workload: workloadName
+    ManagedBy: 'Bicep'
+    CostCenter: orgName
+  }
 }
 
-// Key Vault module
+// Key Vault module - kv-<workload>-<environment>-<region>
 module keyVault './modules/keyvault.bicep' = {
   scope: rg
   params: {
     location: location
     environment: environment
-    keyVaultName: '${resourcePrefix}-${environment}-kv'
+    workloadName: workloadName
+    orgName: orgName
+    keyVaultName: 'kv-${namingPrefix}-${locationShort}'
     azureOpenAIApiKey: azureOpenAIApiKey
   }
 }
 
-// Storage Account module
+// Storage Account module - st<workload><environment><region>
 module storage './modules/storage.bicep' = {
   scope: rg
   params: {
     location: location
     environment: environment
-    storageAccountName: replace('${resourcePrefix}${environment}st', '-', '')
+    workloadName: workloadName
+    orgName: orgName
+    storageAccountName: 'st${replace(namingPrefix, '-', '')}${locationShort}'
   }
 }
 
-// Application Insights module
+// Application Insights module - appi-<workload>-<environment>-<region>
 module appInsights './modules/appinsights.bicep' = {
   scope: rg
   params: {
     location: location
     environment: environment
-    appInsightsName: '${resourcePrefix}-${environment}-ai'
+    workloadName: workloadName
+    orgName: orgName
+    appInsightsName: 'appi-${namingPrefix}-${locationShort}'
+    logAnalyticsName: 'log-${namingPrefix}-${locationShort}'
   }
 }
 
-// Azure Functions module
+// Azure Functions module - func-<workload>-<environment>-<region>
 module functionApp './modules/functionapp.bicep' = {
   scope: rg
   params: {
     location: location
     environment: environment
-    functionAppName: '${resourcePrefix}-${environment}-func'
+    workloadName: workloadName
+    orgName: orgName
+    functionAppName: 'func-${namingPrefix}-${locationShort}'
+    appServicePlanName: 'asp-${namingPrefix}-${locationShort}'
     storageAccountName: storage.outputs.storageAccountName
     appInsightsConnectionString: appInsights.outputs.connectionString
     keyVaultName: keyVault.outputs.keyVaultName
   }
 }
 
-// Static Web App module
+// Static Web App module - swa-<workload>-<environment>-<region>
 module staticWebApp './modules/staticwebapp.bicep' = {
   scope: rg
   params: {
     location: location
     environment: environment
-    staticWebAppName: '${resourcePrefix}-${environment}-swa'
+    workloadName: workloadName
+    orgName: orgName
+    staticWebAppName: 'swa-${namingPrefix}-${locationShort}'
   }
 }
 

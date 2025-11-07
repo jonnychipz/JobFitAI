@@ -1,6 +1,7 @@
 using './main.bicep'
 
-param location = 'eastus'
+param location = 'uksouth'
 param environment = 'dev'
-param resourcePrefix = 'jobfitai'
+param workloadName = 'jobfitai'
+param orgName = 'jl'
 param azureOpenAIApiKey = readEnvironmentVariable('AZURE_OPENAI_API_KEY', '')
