@@ -29,6 +29,7 @@ npm run install:all
 ```
 
 This single command will:
+
 - Install root dependencies
 - Install frontend dependencies
 - Install backend dependencies
@@ -70,9 +71,6 @@ Create `backend/local.settings.json`:
     "AZURE_OPENAI_API_KEY": "your-api-key-here",
     "AZURE_OPENAI_DEPLOYMENT": "gpt-4",
     "AZURE_OPENAI_API_VERSION": "2024-02-15-preview",
-    "AZURE_STORAGE_CONNECTION_STRING": "",
-    "AZURE_KEYVAULT_URL": "",
-    "APPLICATIONINSIGHTS_CONNECTION_STRING": "",
     "ALLOWED_ORIGINS": "http://localhost:5173",
     "MAX_FILE_SIZE_MB": "10"
   },
@@ -82,9 +80,13 @@ Create `backend/local.settings.json`:
 }
 ```
 
-### Get Azure OpenAI Credentials
+> **Note:** For testing without Azure OpenAI, the health check endpoint will still work. Full CV analysis features require valid Azure OpenAI credentials.
 
-If you don't have Azure OpenAI access yet:
+### Get Azure OpenAI Credentials (Optional)
+
+Azure OpenAI is required for full CV analysis features. The app will run in test mode without it.
+
+**To enable full features:**
 
 1. Go to [Azure Portal](https://portal.azure.com)
 2. Create an Azure OpenAI resource
@@ -127,12 +129,14 @@ npm run dev
 ```
 
 This will start:
+
 - ✅ Frontend dev server on `http://localhost:5173`
 - ✅ Backend Functions on `http://localhost:7071`
 
 ### Option B: Start Separately
 
 **Terminal 1 - Backend:**
+
 ```bash
 cd backend
 npm run build
@@ -140,6 +144,7 @@ npm start
 ```
 
 **Terminal 2 - Frontend:**
+
 ```bash
 cd frontend
 npm run dev
@@ -156,6 +161,7 @@ curl http://localhost:7071/api/health
 ```
 
 Expected response:
+
 ```json
 {
   "success": true,
@@ -187,32 +193,52 @@ Now you can:
 
 ## 📝 Quick Feature Tour
 
-### Upload a CV
+### Current Features
 
-1. Go to `http://localhost:5173/upload`
-2. Drag & drop a CV file (PDF, DOCX, or TXT)
-3. Or paste CV text directly
-4. Click "Upload & Analyze CV"
+The application currently has:
 
-### View Analysis
+1. **Home Page** (`/`)
 
-Once implemented, the dashboard will show:
-- Parsed CV data
-- Skills breakdown
-- Experience timeline
-- Optimization suggestions
-- ATS score
+   - Landing page with app overview
+   - Privacy notice explaining no-data-retention policy
+   - Call-to-action buttons
+
+2. **Upload Page** (`/upload`)
+
+   - Drag & drop CV file upload (PDF, DOCX, TXT)
+   - Text paste option for CV content
+   - Privacy notice reminder
+   - File validation
+
+3. **CV Analysis Page** (`/analysis`)
+   - AI-powered CV analysis results (UI ready)
+   - ATS score with color-coded visualization
+   - Career insights (level, industry fit)
+   - Critical improvements list
+   - Keyword suggestions
+   - Skill gap analysis
+   - Next steps recommendations
+
+### Features In Development
+
+- Backend integration for actual AI processing
+- CV parsing with Azure OpenAI
+- Real-time analysis feedback
+- CV history and management
+- Job matching functionality
 
 ## 🛠️ Development Workflow
 
 ### Making Changes
 
 **Frontend:**
+
 - Edit files in `frontend/src/`
 - Hot reload is enabled (instant updates)
 - Check console for errors
 
 **Backend:**
+
 - Edit files in `backend/src/`
 - Run `npm run build` in backend folder
 - Functions will reload automatically
@@ -220,18 +246,21 @@ Once implemented, the dashboard will show:
 ### Running Tests
 
 **Frontend tests:**
+
 ```bash
 cd frontend
 npm test
 ```
 
 **Backend tests:**
+
 ```bash
 cd backend
 npm test
 ```
 
 **All tests:**
+
 ```bash
 npm test
 ```
@@ -239,6 +268,7 @@ npm test
 ### Code Linting
 
 **Frontend:**
+
 ```bash
 cd frontend
 npm run lint
@@ -248,6 +278,7 @@ npm run type-check
 ### Building for Production
 
 **Frontend:**
+
 ```bash
 cd frontend
 npm run build
@@ -255,6 +286,7 @@ npm run build
 ```
 
 **Backend:**
+
 ```bash
 cd backend
 npm run build
@@ -266,6 +298,7 @@ npm run build
 ### Issue: "Cannot find module '@azure/functions'"
 
 **Solution:**
+
 ```bash
 cd backend
 npm install
@@ -274,6 +307,7 @@ npm install
 ### Issue: Port 7071 already in use
 
 **Solution:**
+
 ```bash
 # Find process using port 7071
 netstat -ano | findstr :7071
@@ -287,6 +321,7 @@ taskkill /PID <process-id> /F
 ### Issue: Frontend can't connect to backend
 
 **Solution:**
+
 1. Verify backend is running on `http://localhost:7071`
 2. Check CORS settings in `backend/local.settings.json`
 3. Verify `VITE_API_BASE_URL` in `frontend/.env.local`
@@ -294,6 +329,7 @@ taskkill /PID <process-id> /F
 ### Issue: OpenAI API errors
 
 **Solution:**
+
 1. Verify API key is correct
 2. Check endpoint URL format
 3. Ensure deployment name matches
@@ -302,6 +338,7 @@ taskkill /PID <process-id> /F
 ### Issue: Build errors with TypeScript
 
 **Solution:**
+
 ```bash
 # Clean install
 rm -rf node_modules frontend/node_modules backend/node_modules
@@ -316,22 +353,29 @@ npx tsc --build --clean
 ### Explore the Code
 
 **Key files to check out:**
-- `frontend/src/App.tsx` - Main app component
+
+- `frontend/src/App.tsx` - Main app routes (Home, Upload, Analysis)
 - `frontend/src/components/CVUpload.tsx` - File upload component
+- `frontend/src/components/PrivacyNotice.tsx` - Privacy compliance component
+- `frontend/src/pages/CVAnalysisPage.tsx` - AI analysis results page (UI ready)
 - `backend/src/app.ts` - Functions app entry point
-- `backend/src/services/openaiService.ts` - AI integration
+- `backend/src/services/openaiService.ts` - AI integration (ready for implementation)
 
 ### Add Features
 
-Some ideas:
-- Implement the Dashboard page
-- Add PDF download functionality
-- Create job matching interface
-- Build career insights visualizations
+Current priorities:
+
+- Connect CV Analysis page to backend API
+- Implement CV parsing with Azure OpenAI
+- Add CV file storage and retrieval
+- Build job matching functionality
+- Create career insights generator
+- Add user authentication (MSAL)
 
 ### Deploy to Azure
 
 When ready to deploy:
+
 1. Follow `docs/DEPLOYMENT.md`
 2. Set up GitHub Actions secrets
 3. Push to main branch

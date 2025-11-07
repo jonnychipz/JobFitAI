@@ -61,6 +61,7 @@ JobFitAI is a production-ready, cloud-native CV analysis and optimization platfo
 ### Frontend Layer (React SPA)
 
 **Technology Stack:**
+
 - React 18 with TypeScript
 - Vite for blazing-fast builds
 - TailwindCSS for styling
@@ -68,6 +69,7 @@ JobFitAI is a production-ready, cloud-native CV analysis and optimization platfo
 - MSAL for Azure AD authentication
 
 **Key Components:**
+
 ```
 frontend/
 ├── src/
@@ -75,13 +77,14 @@ frontend/
 │   │   ├── ThemeToggle.tsx  # Dark mode toggle
 │   │   ├── Navbar.tsx       # Navigation
 │   │   ├── CVUpload.tsx     # File upload with drag-and-drop
+│   │   ├── PrivacyNotice.tsx # Privacy compliance component
 │   │   └── Layout.tsx       # App layout wrapper
 │   ├── pages/              # Route-based page components
-│   │   ├── HomePage.tsx    # Landing page
-│   │   ├── UploadPage.tsx  # CV upload interface
-│   │   ├── Dashboard.tsx   # CV analysis dashboard
-│   │   └── JobMatch.tsx    # Job matching interface
+│   │   ├── HomePage.tsx    # Landing page with privacy notice
+│   │   ├── UploadPage.tsx  # CV upload interface (file + text paste)
+│   │   └── CVAnalysisPage.tsx # AI-powered CV analysis results
 │   ├── services/           # API integration
+│   │   ├── azureOpenAIService.ts # Azure OpenAI integration
 │   │   └── api/
 │   │       ├── client.ts   # Axios HTTP client
 │   │       └── cvService.ts # CV API methods
@@ -98,16 +101,23 @@ frontend/
 ```
 
 **Features Implemented:**
+
 - ✅ Responsive design (mobile-first)
 - ✅ Dark mode support
 - ✅ Drag-and-drop file upload
+- ✅ Text paste upload option
 - ✅ Type-safe API calls
-- ✅ Authentication ready (MSAL)
+- ✅ Privacy notice component
+- ✅ CV Analysis page with AI insights
+- ✅ ATS score visualization
+- ✅ Career insights and recommendations
 - ✅ Error handling and loading states
+- ✅ Navigation simplified (Home, Upload, Analysis pages)
 
 ### Backend Layer (Azure Functions)
 
 **Technology Stack:**
+
 - Azure Functions v4
 - Node.js 20 (LTS)
 - TypeScript
@@ -115,20 +125,21 @@ frontend/
 
 **API Endpoints:**
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/health` | GET | Health check |
-| `/api/cv/upload` | POST | Upload CV file (PDF/DOCX) |
-| `/api/cv/upload-text` | POST | Upload CV text |
-| `/api/cv` | GET | Get all user CVs |
-| `/api/cv/{cvId}` | GET | Get specific CV |
-| `/api/cv/{cvId}/parse` | POST | Parse CV with AI |
-| `/api/cv/{cvId}/optimize` | POST | Optimize CV for ATS |
-| `/api/cv/{cvId}/match` | POST | Match CV with job |
-| `/api/cv/{cvId}/insights` | GET | Get career insights |
-| `/api/cv/{cvId}` | DELETE | Delete CV |
+| Endpoint                  | Method | Description               |
+| ------------------------- | ------ | ------------------------- |
+| `/api/health`             | GET    | Health check              |
+| `/api/cv/upload`          | POST   | Upload CV file (PDF/DOCX) |
+| `/api/cv/upload-text`     | POST   | Upload CV text            |
+| `/api/cv`                 | GET    | Get all user CVs          |
+| `/api/cv/{cvId}`          | GET    | Get specific CV           |
+| `/api/cv/{cvId}/parse`    | POST   | Parse CV with AI          |
+| `/api/cv/{cvId}/optimize` | POST   | Optimize CV for ATS       |
+| `/api/cv/{cvId}/match`    | POST   | Match CV with job         |
+| `/api/cv/{cvId}/insights` | GET    | Get career insights       |
+| `/api/cv/{cvId}`          | DELETE | Delete CV                 |
 
 **Function Structure:**
+
 ```
 backend/
 ├── src/
@@ -157,6 +168,7 @@ backend/
 ```
 
 **Security Features:**
+
 - ✅ Managed Identity authentication
 - ✅ Key Vault integration
 - ✅ CORS configuration
@@ -171,12 +183,14 @@ backend/
 The system uses GPT-4 for intelligent CV analysis through four main operations:
 
 1. **CV Parsing** (`parseCV`)
+
    - Extracts structured data from unstructured CV text
    - Identifies personal info, skills, experience, education
    - Categorizes skills by type (technical, soft, language)
    - Returns JSON-formatted data
 
 2. **CV Optimization** (`optimizeCV`)
+
    - Analyzes ATS compatibility (0-100 score)
    - Provides specific improvement suggestions
    - Identifies missing keywords
@@ -184,6 +198,7 @@ The system uses GPT-4 for intelligent CV analysis through four main operations:
    - Highlights improvement areas
 
 3. **Job Matching** (`matchJob`)
+
    - Compares CV against job description
    - Calculates match score (0-100)
    - Lists matched and missing skills
@@ -198,6 +213,7 @@ The system uses GPT-4 for intelligent CV analysis through four main operations:
    - Recommends skill development
 
 **Prompt Engineering:**
+
 - System prompts define expert personas
 - Structured JSON output format
 - Clear instructions for consistency
@@ -253,6 +269,7 @@ Resource Group: jobfitai-{env}-rg
 ```
 
 **External Dependencies:**
+
 - Azure OpenAI Service (separate resource)
 - Azure AD (for authentication)
 
@@ -261,12 +278,14 @@ Resource Group: jobfitai-{env}-rg
 ### Authentication & Authorization
 
 **Frontend:**
+
 - MSAL.js 2.0 for Azure AD authentication
 - Session-based token storage
 - Automatic token refresh
 - Protected routes
 
 **Backend:**
+
 - Function-level authorization
 - Token validation
 - Managed Identity for Azure services
@@ -275,6 +294,7 @@ Resource Group: jobfitai-{env}-rg
 ### Secrets Management
 
 **Key Vault Strategy:**
+
 ```
 Azure Key Vault
 ├── AzureOpenAIApiKey       # OpenAI API key
@@ -283,6 +303,7 @@ Azure Key Vault
 ```
 
 **Access Pattern:**
+
 1. Function App uses Managed Identity
 2. Identity granted Key Vault Secrets User role
 3. Secrets retrieved at runtime
@@ -362,14 +383,14 @@ Jobs:
      - Login to Azure
      - Deploy Bicep templates
      - Output resource names
-  
+
   2. Backend Deployment (depends on #1)
      - Checkout code
      - Setup Node.js 20
      - Install dependencies
      - Build TypeScript
      - Deploy to Function App
-  
+
   3. Frontend Deployment (depends on #1)
      - Checkout code
      - Setup Node.js 20
@@ -383,30 +404,30 @@ Jobs:
 ```yaml
 Trigger: Pull requests, push to develop
 
-Jobs:
-  1. Frontend Tests
-     - Lint code
-     - Type check
-     - Run unit tests
-  
+Jobs: 1. Frontend Tests
+  - Lint code
+  - Type check
+  - Run unit tests
+
   2. Backend Tests
-     - Build TypeScript
-     - Run unit tests
+  - Build TypeScript
+  - Run unit tests
 ```
 
 ### Environment Strategy
 
-| Environment | Branch | Auto-Deploy | Purpose |
-|-------------|--------|-------------|---------|
-| Development | develop | ❌ | Local testing |
-| Staging | staging | ✅ | Pre-production |
-| Production | main | ✅ | Live system |
+| Environment | Branch  | Auto-Deploy | Purpose        |
+| ----------- | ------- | ----------- | -------------- |
+| Development | develop | ❌          | Local testing  |
+| Staging     | staging | ✅          | Pre-production |
+| Production  | main    | ✅          | Live system    |
 
 ## 📈 Monitoring & Observability
 
 ### Application Insights Integration
 
 **Telemetry Collected:**
+
 - Request/response times
 - Dependency calls (OpenAI, Storage)
 - Exceptions and errors
@@ -415,6 +436,7 @@ Jobs:
 - Performance metrics
 
 **Key Metrics:**
+
 - CV processing time
 - OpenAI API latency
 - Success/failure rates
@@ -422,6 +444,7 @@ Jobs:
 - API call volume
 
 **Alerts (Recommended):**
+
 - Function failures > 5% in 5 minutes
 - Response time > 3 seconds
 - OpenAI API errors
@@ -432,6 +455,7 @@ Jobs:
 ### Environment Variables
 
 **Frontend (.env.local):**
+
 ```env
 VITE_API_BASE_URL=https://jobfitai-dev-func.azurewebsites.net/api
 VITE_AZURE_CLIENT_ID=xxx
@@ -441,6 +465,7 @@ VITE_ENABLE_AUTH=false
 ```
 
 **Backend (local.settings.json):**
+
 ```json
 {
   "Values": {
@@ -458,6 +483,7 @@ VITE_ENABLE_AUTH=false
 ### Frontend Build
 
 **Vite Configuration:**
+
 - Code splitting by vendor (React, MSAL)
 - Tree shaking for smaller bundles
 - Minification and compression
@@ -465,6 +491,7 @@ VITE_ENABLE_AUTH=false
 - Asset optimization
 
 **Bundle Sizes (Target):**
+
 - Main bundle: < 200 KB
 - Vendor chunks: < 500 KB
 - Total initial load: < 1 MB
@@ -472,6 +499,7 @@ VITE_ENABLE_AUTH=false
 ### Backend Build
 
 **TypeScript Compilation:**
+
 - Target: ES2020
 - Module: CommonJS
 - Source maps enabled
@@ -480,12 +508,14 @@ VITE_ENABLE_AUTH=false
 ## 🧪 Testing Strategy
 
 ### Frontend Tests
+
 - **Unit Tests**: Jest + React Testing Library
 - **Component Tests**: Render and interaction tests
 - **Hook Tests**: Custom hooks testing
 - **Integration Tests**: API service tests
 
 ### Backend Tests
+
 - **Unit Tests**: Jest
 - **Function Tests**: HTTP trigger testing
 - **Service Tests**: OpenAI service mocks
@@ -494,22 +524,29 @@ VITE_ENABLE_AUTH=false
 ## 🎯 Future Enhancements
 
 ### Phase 2 (Coming Soon)
-- [ ] Full dashboard implementation
+
+- [ ] Backend implementation for CV parsing and AI analysis
+- [ ] Connect CV Analysis page to real Azure OpenAI service
 - [ ] PDF generation for optimized CVs
-- [ ] User authentication and profiles
+- [ ] User authentication and profiles (MSAL integration)
 - [ ] CV history and versioning
+- [ ] Database integration for CV storage
 - [ ] Multiple CV comparisons
+- [ ] Job matching interface
 
 ### Phase 3 (Planned)
+
 - [ ] Job board integration
 - [ ] Real-time collaboration
 - [ ] AI interview preparation
 - [ ] Skills gap analysis
 - [ ] Career roadmap visualization
+- [ ] Full analytics dashboard
 
 ## 📝 Summary
 
 This architecture provides:
+
 - ✅ **Scalability**: Serverless auto-scaling
 - ✅ **Security**: Managed Identity, Key Vault, HTTPS
 - ✅ **Performance**: CDN, caching, optimized bundles
@@ -522,9 +559,11 @@ This architecture provides:
 ---
 
 **Total Cost (Estimated Monthly):**
+
 - Development: ~$10-20 (excluding OpenAI usage)
 - Production: ~$50-100 (with moderate traffic)
 
 **Deployment Time:**
+
 - Initial setup: ~30 minutes
 - Subsequent deployments: ~5 minutes
