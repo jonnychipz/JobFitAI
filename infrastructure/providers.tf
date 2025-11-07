@@ -31,4 +31,7 @@ provider "azurerm" {
       prevent_deletion_if_contains_resources = false
     }
   }
+
+  # Enable OIDC authentication when running in GitHub Actions
+  use_oidc = true
 }
