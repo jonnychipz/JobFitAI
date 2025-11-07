@@ -39,8 +39,8 @@ module openAI './modules/openai.bicep' = {
     workloadName: workloadName
     orgName: orgName
     openAIAccountName: 'oai-${namingPrefix}-${locationShort}'
-    deploymentModelName: 'gpt-4'
-    modelVersion: 'turbo-2024-04-09'
+    deploymentModelName: 'gpt-4o'
+    modelVersion: '2024-05-13'
     deploymentCapacity: 10
   }
 }

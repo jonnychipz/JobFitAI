@@ -15,10 +15,10 @@ param orgName string
 param openAIAccountName string
 
 @description('The deployment model name')
-param deploymentModelName string = 'gpt-4'
+param deploymentModelName string = 'gpt-4o'
 
-@description('The deployment model version - using turbo-2024-04-09 (latest stable)')
-param modelVersion string = 'turbo-2024-04-09'
+@description('The deployment model version - using 2024-05-13 (GPT-4o)')
+param modelVersion string = '2024-05-13'
 
 @description('The deployment capacity')
 param deploymentCapacity int = 10
@@ -46,12 +46,12 @@ resource openAIAccount 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
   }
 }
 
-// GPT-4 Deployment
+// GPT-4o Deployment
 resource gpt4Deployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = {
   parent: openAIAccount
   name: deploymentModelName
   sku: {
-    name: 'Standard'
+    name: 'GlobalStandard'
     capacity: deploymentCapacity
   }
   properties: {
